@@ -1,0 +1,126 @@
+package com.example.jam.myapplication.todb;
+
+import android.app.ProgressDialog;
+import android.content.Context;
+import android.os.AsyncTask;
+import android.widget.EditText;
+import android.widget.Toast;
+
+import com.example.jam.myapplication.Pojos.Need;
+
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.net.HttpURLConnection;
+
+public class Sender extends AsyncTask<Void,Void,String> {
+
+    Context c;
+    String urlAddress;
+    EditText item_nameTxt, descTxt;
+    Need need;
+    ProgressDialog pd;
+
+    public Sender(Context c, String urlAddress, String userID, EditText item_name, EditText desc, String lati, String longi, String need_have) {
+        this.c = c;
+        this.urlAddress = urlAddress;
+        this.item_nameTxt = item_name;
+        this.descTxt = desc;
+        this.pd = pd;
+
+        need=new Need(userID, item_name.getText().toString(), desc.getText().toString(), lati, longi, need_have);
+//        need.setName(nameTxt.getText().toString());
+//        need.setPropellant(propellantTxt.getText().toString());
+//        need.setDescription(descTxt.getText().toString());
+    }
+
+    @Override
+    protected void onPreExecute() {
+        super.onPreExecute();
+
+        pd =  new ProgressDialog(c);
+        pd.setTitle("Send");
+        pd.setMessage("Sending...Please wait");
+        pd.show();
+    }
+
+    @Override
+    protected String doInBackground(Void... params) {
+        return this.send();
+    }
+
+    @Override
+    protected void onPostExecute(String s) {
+        super.onPostExecute(s);
+
+        pd.dismiss();
+
+        if(s==null){
+            Toast.makeText(c,"Unsuccessful,Null returned",Toast.LENGTH_SHORT).show();
+        }else{
+            if(s=="Bad Response"){
+                Toast.makeText(c,"Unsuccessful,Bad Response returned",Toast.LENGTH_SHORT).show();
+
+            }else
+            {
+                Toast.makeText(c,"Successfully Saved",Toast.LENGTH_SHORT).show();
+
+                //CLEAR UI
+                item_nameTxt.setText("");
+                descTxt.setText("");
+
+            }
+        }
+    }
+
+    private String send()
+    {
+
+
+        HttpURLConnection con=Connector.connect(urlAddress);
+        if(con==null)
+        {
+            return null;
+        }
+        try {
+
+            OutputStream os=con.getOutputStream();
+
+            //WRITE
+            BufferedWriter bw=new BufferedWriter(new OutputStreamWriter(os,"UTF-8"));
+            bw.write(new DataPackager(need).packData());
+
+            bw.flush();
+            //RELEASE
+            bw.close();
+            os.close();
+
+            //SUCCESS OR NOT??
+            int responseCode=con.getResponseCode();
+            if(responseCode==con.HTTP_OK)
+            {
+                BufferedReader br=new BufferedReader(new InputStreamReader(con.getInputStream()));
+                StringBuffer response=new StringBuffer();
+
+                String line;
+                while ((line=br.readLine()) != null)
+                {
+                    response.append(line);
+                }
+
+                br.close();
+
+                return response.toString();
+            }else {
+                return "Bad Response";
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return null;
+    }
+}
