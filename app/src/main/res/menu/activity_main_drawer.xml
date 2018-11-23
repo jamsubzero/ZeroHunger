@@ -11,23 +11,27 @@
         <item
             android:id="@+id/nav_needs"
             android:icon="@drawable/baseline_local_pizza_24"
-            android:title="What you need" />
+            android:title="Your Needs" />
         <item
             android:id="@+id/nav_have"
             android:icon="@drawable/baseline_playlist_add_check_24"
-            android:title="What you have" />
+            android:title="Your Haves" />
+        <item
+            android:id="@+id/nav_reports"
+            android:icon="@drawable/baseline_playlist_add_check_24"
+            android:title="Food waste alerts" />
     </group>
 
-    <item android:title="Help">
+    <item android:title="Actions">
         <menu>
             <item
-                android:id="@+id/nav_share"
+                android:id="@+id/nav_reportNow"
                 android:icon="@drawable/ic_menu_share"
-                android:title="ShareNow" />
+                android:title="Report food wastage" />
             <item
-                android:id="@+id/nav_send"
+                android:id="@+id/nav_tipid"
                 android:icon="@drawable/ic_menu_send"
-                android:title="SendNow" />
+                android:title="Tipid Analysis" />
         </menu>
     </item>
 

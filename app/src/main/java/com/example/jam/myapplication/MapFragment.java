@@ -2,6 +2,7 @@ package com.example.jam.myapplication;
 
 import android.Manifest;
 import android.app.AlertDialog;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.pm.PackageManager;
@@ -25,6 +26,8 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 import android.widget.Toast;
+
+import java.security.Provider;
 
 
 ///**
@@ -86,10 +89,10 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, Locatio
 //        CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(latLng, 10);
 //        mMap.animateCamera(cameraUpdate);
 //  locationManager.removeUpdates(this);
-        LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
-        Toast.makeText(this.getContext(), location.getLatitude()+"=="+location.getLongitude(), Toast.LENGTH_LONG).show();
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
-        mMap.setMaxZoomPreference(400);
+ //       LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
+//        Toast.makeText(this.getContext(), location.getLatitude()+"=="+location.getLongitude(), Toast.LENGTH_LONG).show();
+ //      mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
+//        mMap.setMaxZoomPreference(400);
     }
 
 
@@ -125,22 +128,45 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, Locatio
 //        mMap.getUiSettings().setMapToolbarEnabled(true);
 //        mMap.getUiSettings().setCompassEnabled(true);
 //        mMap.getUiSettings().setAllGesturesEnabled(true);
+        ProgressDialog pd =  new ProgressDialog(this.getContext());
+        pd.setTitle("Send");
+        pd.setMessage("Sending...Please wait");
+        pd.show();
 
-        // Add a marker in Sydney and move the camera
-        checkLocationPermission();
-        LocationManager locationManager = (LocationManager) this.getActivity().getSystemService(Context.LOCATION_SERVICE);
-        String provider =  locationManager.getBestProvider(new Criteria(), false);
-       locationManager.requestLocationUpdates(provider, 400, 1, this);
-        Location loc = locationManager.getLastKnownLocation(provider);
-        LatLng latLng = new LatLng(10.1699464, 122.7979289); // CHMSC
-        if(loc!=null){
-           latLng = new LatLng(loc.getLatitude(), loc.getLongitude());
-        }
-   //10.1699464,122.7979289
+        MyLocation.LocationResult locationResult = new MyLocation.LocationResult(){
+            @Override
+            public void gotLocation(final Location location){
+                MapFragment.this.getActivity().
+                runOnUiThread(new Runnable(){
+                    public void run() {
+                        LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
+                        mMap.addMarker(new MarkerOptions().position(latLng).title("Current Looation"));
+                        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 14));          // UI code goes here
+                    }
+                });
 
-        Toast.makeText(this.getContext(), latLng.toString(), Toast.LENGTH_LONG).show();
-        mMap.addMarker(new MarkerOptions().position(latLng).title("Current Looation"));
-        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 14));
+            }
+        };
+
+        MyLocation myLocation = new MyLocation(this.getActivity());
+        myLocation.getLocation(locationResult);
+pd.dismiss();
+//        // Add a marker in Sydney and move the camera
+//        checkLocationPermission();
+//        LocationManager locationManager = (LocationManager) this.getActivity().getSystemService(Context.LOCATION_SERVICE);
+//        String provider =  locationManager.getBestProvider(new Criteria(), false);
+//       LocationManager locationManager = (LocationManager) this.getActivity().getSystemService(Context.LOCATION_SERVICE);
+//        Location loc = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+//        LatLng latLng = new LatLng(10.1699464, 122.7979289); // CHMSC
+//        if(loc!=null){
+//
+//          latLng = new LatLng(loc.getLatitude(), loc.getLongitude());
+//        }
+//   //10.1699464,122.7979289
+//
+//        Toast.makeText(this.getContext(), latLng.toString(), Toast.LENGTH_LONG).show();
+//        mMap.addMarker(new MarkerOptions().position(latLng).title("Current Looation"));
+//        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 14));
     }
 
 

@@ -55,7 +55,7 @@ public class MyLocation{
         if(network_enabled)
             lm.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, locationListenerNetwork);
         timer1=new Timer();
-        timer1.schedule(new GetLastLocation(), 10000);
+        timer1.schedule(new GetLastLocation(), 1000);
         return true;
     }
 
@@ -69,6 +69,7 @@ public class MyLocation{
         public void onProviderDisabled(String provider) {}
         public void onProviderEnabled(String provider) {}
         public void onStatusChanged(String provider, int status, Bundle extras) {}
+
     };
 
     LocationListener locationListenerNetwork = new LocationListener() {
@@ -123,6 +124,7 @@ public class MyLocation{
         lm.removeUpdates(locationListenerGps);
         lm.removeUpdates(locationListenerNetwork);
     }
+
     public static abstract class LocationResult{
         public abstract void gotLocation(Location location);
     }

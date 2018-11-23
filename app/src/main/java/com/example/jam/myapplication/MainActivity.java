@@ -44,7 +44,7 @@ import java.security.Provider;
 import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener, LocationListener {
+        implements NavigationView.OnNavigationItemSelectedListener{
 
 
     private int SELECTED_NAV = R.id.nav_map; //  map by default
@@ -53,8 +53,8 @@ public class MainActivity extends AppCompatActivity
     private static final long MIN_TIME = 400;
     private static final float MIN_DISTANCE = 1000;
     public static final int MY_PERMISSIONS_REQUEST_LOCATION = 99;
-
-    String url = "http://172.20.10.11/zeroHunger/insertNeed.php";
+    //http://eresponse.tk/ZeroHunger/insertNeed.php
+    String url = "http://eresponse.tk/ZeroHunger/insertNeed.php";
 
     MyLocation myLocation;
 
@@ -76,6 +76,7 @@ public class MainActivity extends AppCompatActivity
                     showAddNeedsDialog();
                 }else if(SELECTED_NAV == R.id.nav_have){
                     //TODO showAddHavesDialog()
+                    showAddHavesDialog();
                 }
 
 
@@ -154,9 +155,11 @@ public class MainActivity extends AppCompatActivity
 
             goto_have();
 
-        } else if (id == R.id.nav_share) {
+        } else if (id == R.id.nav_reports) {
 
-        } else if (id == R.id.nav_send) {
+        } else if (id == R.id.nav_reportNow) {
+
+        } else if (id == R.id.nav_tipid) {
 
         }
 
@@ -172,16 +175,18 @@ public class MainActivity extends AppCompatActivity
         //        .setAction("Action", null).show();
 
         final AlertDialog.Builder builder1 = new AlertDialog.Builder(MainActivity.this);
-        builder1.setMessage("Write your message here.");
+        builder1.setMessage("What do you need?");
         builder1.setCancelable(true);
         builder1.setView(R.layout.add_need_dialog_layout);
         LayoutInflater inflater = MainActivity.this.getLayoutInflater();
         final View dialogView = inflater.inflate(R.layout.add_need_dialog_layout, null);
         builder1.setView(dialogView);
+        Location lo;
         builder1.setPositiveButton(
                 "SAVE",
                 new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
+
                         MyLocation.LocationResult locationResult = new MyLocation.LocationResult(){
                             @Override
                             public void gotLocation(Location location){
@@ -199,6 +204,7 @@ public class MainActivity extends AppCompatActivity
 
 
 
+
                                 // save(sUserID, sItem_name, sDesc, sLati, sLongi, sNeed_have);
                                 Sender s=new Sender(MainActivity.this,url,sUserID, item, desc, sLati, sLongi, sNeed_have);
                                 s.execute();
@@ -207,7 +213,6 @@ public class MainActivity extends AppCompatActivity
 
                         myLocation.getLocation(locationResult);
                         //
-
                         //=============================END FOR LOCATION
 
 
@@ -233,6 +238,81 @@ public class MainActivity extends AppCompatActivity
 
 
     }
+
+
+
+    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+    private void showAddHavesDialog(){
+
+        // Snackbar.make(view, "Replalckkkke now with your own action", Snackbar.LENGTH_LONG)
+        //        .setAction("Action", null).show();
+
+        final AlertDialog.Builder builder1 = new AlertDialog.Builder(MainActivity.this);
+        builder1.setMessage("What do you have?");
+        builder1.setCancelable(true);
+        builder1.setView(R.layout.add_need_dialog_layout);
+        LayoutInflater inflater = MainActivity.this.getLayoutInflater();
+        final View dialogView = inflater.inflate(R.layout.add_need_dialog_layout, null);
+        builder1.setView(dialogView);
+        Location lo;
+        builder1.setPositiveButton(
+                "SAVE",
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+
+                        MyLocation.LocationResult locationResult = new MyLocation.LocationResult(){
+                            @Override
+                            public void gotLocation(Location location){
+                                EditText item = dialogView.findViewById(R.id.item);
+                                EditText desc = dialogView.findViewById(R.id.desc);
+                                String sUserID = "jam";
+                                String sItem_name = item.getText().toString();
+                                String sDesc = desc.getText().toString();
+
+                                //
+                                String sLati = String.valueOf(location.getLatitude());
+                                String  sLongi = String.valueOf(location.getLongitude());
+                                //Got the location!
+                                String sNeed_have = "1"; // 1 for have
+
+
+
+
+                                // save(sUserID, sItem_name, sDesc, sLati, sLongi, sNeed_have);
+                                Sender s=new Sender(MainActivity.this,url,sUserID, item, desc, sLati, sLongi, sNeed_have);
+                                s.execute();
+                            }
+                        };
+
+                        myLocation.getLocation(locationResult);
+                        //
+                        //=============================END FOR LOCATION
+
+
+
+
+//                        EditText name = dialogView.findViewById(R.id.desc);
+//                        Toast.makeText(MainActivity.this, name.getText(), Toast.LENGTH_LONG).show();
+                        dialog.dismiss();
+
+                    }
+                });
+
+        builder1.setNegativeButton(
+                "Cancel",
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        dialog.dismiss();
+                    }
+                });
+
+        AlertDialog alert11 = builder1.create();
+        alert11.show();
+
+
+    }
+
+
 
 
     private void goto_map() {
@@ -261,111 +341,6 @@ public class MainActivity extends AppCompatActivity
         fab.setVisibility(View.VISIBLE);
     }
     //====================
-
-    //
-
-
-    public boolean checkLocationPermission() {
-        if (ContextCompat.checkSelfPermission(this,
-                Manifest.permission.ACCESS_FINE_LOCATION)
-                != PackageManager.PERMISSION_GRANTED) {
-
-            // Should we show an explanation?
-            if (ActivityCompat.shouldShowRequestPermissionRationale(this,
-                    Manifest.permission.ACCESS_FINE_LOCATION)) {
-
-                // Show an explanation to the user *asynchronously* -- don't block
-                // this thread waiting for the user's response! After the user
-                // sees the explanation, try again to request the permission.
-                new AlertDialog.Builder(this)
-                        .setTitle("Title")
-                        .setMessage("Please enable location")
-                        .setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialogInterface, int i) {
-                                //Prompt the user once explanation has been shown
-                                ActivityCompat.requestPermissions(MainActivity.this,
-                                        new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
-                                        MY_PERMISSIONS_REQUEST_LOCATION);
-                            }
-                        })
-                        .create()
-                        .show();
-
-
-            } else {
-                // No explanation needed, we can request the permission.
-                ActivityCompat.requestPermissions(MainActivity.this,
-                        new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
-                        MY_PERMISSIONS_REQUEST_LOCATION);
-            }
-            return false;
-        } else {
-            return true;
-        }
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode,
-                                           String permissions[], int[] grantResults) {
-        switch (requestCode) {
-            case MY_PERMISSIONS_REQUEST_LOCATION: {
-                // If request is cancelled, the result arrays are empty.
-                if (grantResults.length > 0
-                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-
-                    // permission was granted, yay! Do the
-                    // location-related task you need to do.
-                    if (ContextCompat.checkSelfPermission(this,
-                            Manifest.permission.ACCESS_FINE_LOCATION)
-                            == PackageManager.PERMISSION_GRANTED) {
-
-                        //Request location updates:
-                        LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-                        String provider =  locationManager.getBestProvider(new Criteria(), false);
-                        locationManager.requestLocationUpdates(provider, 400, 1, MainActivity.this);
-
-                    }
-
-                } else {
-
-                    // permission denied, boo! Disable the
-                    // functionality that depends on this permission.
-
-                }
-                return;
-            }
-
-        }
-
-
-    }
-
-
-    @Override
-    public void onLocationChanged(Location location) {
-//        LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
-//        CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(latLng, 10);
-//        mMap.animateCamera(cameraUpdate);
-//  locationManager.removeUpdates(this);
-        LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
-        Toast.makeText(this, location.getLatitude()+"=="+location.getLongitude(), Toast.LENGTH_LONG).show();
-
-    }
-        @Override
-    public void onStatusChanged(String provider, int status, Bundle extras) {
-
-    }
-
-    @Override
-    public void onProviderEnabled(String provider) {
-
-    }
-
-    @Override
-    public void onProviderDisabled(String provider) {
-
-    }
 
 
 
